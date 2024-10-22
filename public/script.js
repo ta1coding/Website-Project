@@ -60,6 +60,13 @@ camera.lookAt(cube.position); // Make the camera look at the cube
 // Get the light indicator DOM element
 const lightIndicator = document.getElementById('light-indicator');
 
+// Track the cube's jump state
+let isJumping = false;
+let velocityY = 0; // Vertical velocity of the cube
+const gravity = -0.02; // Gravity to pull the cube down
+const jumpStrength = 0.3; // How strong the jump is
+const floorHeight = 0.5; // Height at which the cube lands
+
 // Mouse movement event
 document.addEventListener('mousemove', (event) => {
     // Normalize mouse coordinates to the range -1 to 1
@@ -78,9 +85,35 @@ document.addEventListener('mousemove', (event) => {
     lightIndicator.style.top = `${indicatorY}px`;
 });
 
+// Space bar event listener for jump
+document.addEventListener('keydown', (event) => {
+    if (event.code === 'Space' && !isJumping) {
+        // Initiate jump if space is pressed and the cube is not already jumping
+        isJumping = true;
+        velocityY = jumpStrength;
+    }
+});
+
 // Animation loop
 const animate = function () {
     requestAnimationFrame(animate);
+
+    // If the cube is jumping, apply physics
+    if (isJumping) {
+        // Apply gravity to the cube's vertical velocity
+        velocityY += gravity;
+
+        // Update cube's position based on velocity
+        cube.position.y += velocityY;
+
+        // Check if the cube has landed on the floor
+        if (cube.position.y <= floorHeight) {
+            cube.position.y = floorHeight; // Reset cube's position to the floor level
+            isJumping = false; // Cube has landed, stop jumping
+            velocityY = 0; // Reset velocity
+        }
+    }
+
     renderer.render(scene, camera);
 };
 
